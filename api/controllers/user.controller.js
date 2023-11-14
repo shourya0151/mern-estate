@@ -2,9 +2,11 @@ import bcryptjs from 'bcryptjs';
 import User from '../models/user.model.js';
 import { errorHandler } from '../utils/error.js';
 
-export const test = (req,res)=>{
-    res.send("Hello World")
-}
+export const test = (req, res) => {
+  res.json({
+    message: 'Api route is working!',
+  });
+};
 
 export const updateUser = async (req, res, next) => {
     if (req.user.id !== req.params.id)
@@ -39,7 +41,8 @@ export const updateUser = async (req, res, next) => {
 
 //delete user api route
 export const deleteUser = async (req,res,next) => {
-  if (req.user.id !== req.params.id) return next(errorHandler(401,'You can only delete your account!'))
+  if (req.user.id !== req.params.id) 
+    return next(errorHandler(401,'You can only delete your account!'))
   try {
     await User.findByIdAndDelete(req.params.id)
     res.clearCookie('access_token');
