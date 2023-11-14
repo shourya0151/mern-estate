@@ -1,6 +1,6 @@
 
 import express from 'express';
-import {test, updateUser} from '../controllers/user.controller.js';
+import {deleteUser, test, updateUser} from '../controllers/user.controller.js';
 import { verifyToken } from '../utils/verifyUser.js';
 
 const router = express.Router();
@@ -11,6 +11,7 @@ router.post('/update/:id',verifyToken,updateUser);
 //here first we have to verify if the user is authenticated or not
 // WE WILL DO THIS BY USING THE TOKENS THAT WE HAVE CRETED WHILE SIGNING IN OR SIGNING UP
 
+router.delete('/delete/:id',verifyToken,deleteUser);
 
 
 export default router;
