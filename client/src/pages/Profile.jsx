@@ -19,7 +19,7 @@ import { useDispatch } from 'react-redux';
 
 
 export default function Profile() {
-  const {currentUser} = useSelector((state) => state.user)
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null)
   //for uploadingthe file in firebase
   const [file,setFile] = useState(undefined)
@@ -106,9 +106,9 @@ export default function Profile() {
       {
         method: 'DELETE',
       });
-
+      const data = await res.json();
       if (data.success === false){
-        dispatch(deleteUserFailure(error.message));
+        dispatch(deleteUserFailure(data.message));
         return;
       }
 
@@ -129,7 +129,7 @@ export default function Profile() {
         dispatch(signOutUserFailure(data.message));
         return;
       }
-      signOutUserSuccess(data);
+      dispatch(signOutUserSuccess(data));
 
     } catch(error){
       dispatch(deleteUserFailure(data.message));
@@ -137,11 +137,11 @@ export default function Profile() {
   }
 
   return (
-    <div onSubmit={handleSubmit} className='p-3 max-w-lg mx-auto'>
+    <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl font-semibold text-center
       my-7'> Profile</h1>
 
-      <form className='flex flex-col gap-4'>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input 
         onChange={(e) => setFile(e.target.files[0])}
         type="file" 
@@ -189,9 +189,11 @@ export default function Profile() {
       id='password'
       />
       
-      <button className='bg-slate-700 text-white
+      <button disabled={loading} className='bg-slate-700 text-white
       rounded-lg p-3 uppercase hover:opacity-95
-      disabled: opacity-80'>update</button>
+      disabled: opacity-80'>
+        {loading ? 'Loading...': 'Update'}
+      </button>
 
       </form>
 
@@ -202,7 +204,7 @@ export default function Profile() {
         cursor-pointer' onClick={handleSignOut}>Sign out</span>
       </div>
 
-      
+      <p className='text-red-700 mt-5'>{error ? error : ''}</p>
       <p className='text-green-700 mt-5 cursor-pointer'>
         {updateSuccess ? 'Successfully Updated': ''}</p>
     </div>
