@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   getDownloadURL,
   getStorage,
@@ -7,9 +7,10 @@ import {
 } from 'firebase/storage';
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams} from 'react-router-dom';
 
 export default function CreateListing() {
+    const params = useParams();
     const navigate = useNavigate();
     const {currentUser} = useSelector(state => state.user);
     const [files,setFiles] = useState([]);
@@ -33,8 +34,28 @@ export default function CreateListing() {
     const [error,setError] = useState(false);
     const [loading,setLoading] = useState(false);
 
+    useEffect(() => {
+        const fetchListing = async () => {
+            const listingId = params.listingId;
+            //to get listing id import it from params 
+            const res = await fetch(`/api/listing/get/${listingId}`);
+            const data = await res.json();
 
-    console.log(formData);
+            if(data.success === false){
+                console.log(data.message);
+                return;
+            }
+            setFormData(data);
+
+        }
+
+        fetchListing();
+    },[]);
+    //because it is an async function but we cannot make asnyc affect inside the useeffect so do the following
+    //USE EFFECT IS USED TO SHOW YO THE PREV FORM DATA
+
+
+    
     
 
 
@@ -133,7 +154,7 @@ export default function CreateListing() {
             setLoading(true);
             setError(false);
 
-            const res = await fetch('/api/listing/create',{
+            const res = await fetch(`/api/listing/update/${params.listingId}`,{
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,7 +183,7 @@ export default function CreateListing() {
     <main className='p-3 max-w-4xl mx-auto'>
         <h1 className='text-3xl font-semibold 
         text-center my-7'>
-            Create a Listing
+            Update Listing
         </h1>
 
         <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
@@ -291,11 +312,13 @@ export default function CreateListing() {
                 }
                 <button disabled={loading || uploading} className='p-3 rounded-lg bg-slate-700
             uppercase text-white hover:opacity-95 disabled:opacity-80'>
-               {loading ? 'Creating...': 'Create Listing'}
+               {loading ? 'Updating...': 'Update Listing'}
                 </button>
                 {error && <p className='text-red-700 text-sm'>{error}</p>}
 
             </div>
+            
+            
         </form>
     </main>
   )
